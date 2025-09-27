@@ -1,64 +1,99 @@
- 📊 Project Title: Equity & Learning Gaps Dashboard
+  Project Title: Equity & Learning Gaps Dashboard
 
 👥 Team Members:
 Roaa Hajj Chehade
-Ghada Al danab
+Ghada Al Danab
 Line Faour
+# Equity & Learning Gaps Dashboard
 
-📌 Problem Statement
-Education policymakers and teachers often lack clear, visual insights into:
-- Where students are underperforming
-- Which groups (e.g., boys vs. girls) face inequities
-This dashboard provides actionable visual analytics to target interventions and allocate resources fairly.
+This project was built during the **EECE490/690 Hackathon – "From Data to Impact"**.  
+Our mission was to transform raw **National Student Assessment data (Grades 1–6)** into actionable insights that highlight **learning gaps, equity issues, and at-risk students**.
 
-💡 Proposed Solution
-Briefly explain your AI/ML approach.
-Mention whether you use supervised, unsupervised, multimodal, or graph-based ML.
-State what makes your approach innovative.
+---
 
-Technical Plan
-📂 Dataset
-We use **synthetic student assessment data**, aggregated into the following CSVs (under `data_proc/`):
-- `agg_region_grade_subject.csv` → Subject-level averages per region & grade  
-- `agg_region_grade_subject_domain.csv` → Domain-level averages (e.g., Reading, Writing)  
-- `agg_gender.csv` → Gender gaps per region & subject  
-- `agg_gender_domain.csv` → Gender gaps at domain-level  
-- `overlap.csv` → Priority cohorts where learning + equity gaps overlap  
-- `overlap_domain.csv` → Domain-level priority cohorts  
-Each dataset contains metrics like:
-- `avg_score` → average student score  
-- `pct_below` → % of students below proficiency (50%)  
-- `gap_pp` → gap in percentage points between groups  
-- `p_value` → statistical test result  
+## 🎯 Problem Statement
+Lebanon’s National Student Assessment dataset contains thousands of records across grades, subjects (Arabic, English, French, Math), and regions.  
+However, raw Excel sheets are fragmented and difficult to analyze.  
+Our project aims to answer key questions:
 
-🏗️ Approach & Architecture
-- **Preprocessing:** Raw student rows aggregated → CSVs above  
-- **Frontend:** Streamlit multipage app with tabs:
-  1. **Overview** → national snapshot  
-  2. **Learning Gaps** → heatmap & worst regions  
-  3. **Equity** → gender disparities (with domain-level breakdown)  
-  4. **Overlap** → priority cohorts where both gaps align  
+- Which regions and subjects show the highest learning gaps?
+- Where do equity concerns (e.g., gender differences) appear?
+- Which students are most at risk of falling below proficiency?
+- How can policymakers triage and prioritize interventions?
 
+---
+##DataSet Used:
+[https://meheadmin-my.sharepoint.com/personal/meheminister_mehe_gov_lb/_layouts/15/onedrive.aspx?id=%2Fpersonal%2Fmeheminister%5Fmehe%5Fgov%5Flb%2FDocuments%2FNational%20Assessment%20Results&ga=1](https://bit.ly/45rjFRD)
 
-## 💻 How to Run Locally
+## 🛠️ Approach & Architecture
+
+The project has four main parts:
+
+1. **Data Processing**  
+   - Cleaned and normalized raw Excel files (Grades 1–6).  
+   - Handled noisy column names in Arabic, English, and French.  
+   - Produced **tidy CSVs** with:
+     - Region × Grade × Subject aggregates  
+     - Gender gap analysis  
+     - Domain-level breakdowns  
+
+2. **Risk Modeling**  
+   - Trained **logistic regression models** to estimate student risk of scoring below proficiency.  
+   - Calibrated predictions with cross-validation.  
+   - Exported:
+     - `student_risk_scores.csv` → per-student probabilities  
+     - `risk_model_metrics.json` → model metrics (AUC, Brier score, etc.)  
+     - `risk_model_coefficients.csv` → feature importance  
+
+3. **Clustering & Feature Exploration**  
+   - Grouped students by performance patterns.  
+   - Identified clusters of common weaknesses (e.g., reading comprehension vs writing).  
+
+4. **Frontend Dashboard (Streamlit)**  
+   - Interactive UI with pages:  
+     - Overview  
+     - Learning Gaps  
+     - Equity  
+     - Overlap  
+     - Triage  
+     - Clusters  
+     - Students  
+   - Visualizes results in an **easy-to-use equity dashboard**.  
+   - Built with **Streamlit**, runs fully inside **Docker**.
+
+---
+
+## 📂 Repository Structure
+├── Data Processing/ # Scripts for cleaning & aggregating raw data
+├── Train Risk Model/ # Risk prediction models
+├── clusters_feature_dashboard/ # Clustering and feature exploration
+├── frontend/ # Streamlit dashboard (main entry point)
+│ ├── app.py
+│ ├── pages/
+│ ├── utils/
+│ ├── data_proc.zip
+│ └── requirements.txt
+└── README.md # This file
+
+##To Run the dashboard:
+### 1. With Docker (recommended)
+From inside the `frontend/` folder:
 ```bash
-# Clone repo
-git clone https://github.com/<your-username>/hackathon-490.git
-cd hackathon-dashboard
+docker build -t equity-dashboard .
+docker run --rm -p 8501:8501 equity-dashboard
 
-# Create virtualenv
-python -m venv .venv
-source .venv/bin/activate   # On Windows: .venv\Scripts\activate
-
-# Install dependencies
+## 2. Without Docker
+cd frontend
 pip install -r requirements.txt
-
-# Run the app
 streamlit run app.py
-```
 
-Hackathon Impact
-This project helps ministries & schools:
-Identify struggling regions and grades
-Pinpoint equity gaps by gender/domain
-Prioritize targeted interventions for at-risk cohorts
+📊 Outputs
+
+Aggregated Data: data_proc/agg_region_grade_subject.csv
+
+Risk Scores: data_proc/student_risk_scores.csv
+
+Equity Metrics: data_proc/agg_gender.csv, overlap.csv
+
+Model Coefficients: risk_model_coefficients.csv
+
