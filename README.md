@@ -71,28 +71,34 @@ The project has four main parts:
 ---
 
 
+## 📂 Dataset
 
-📂 Dataset
-We use *synthetic student assessment data*, aggregated into the following CSVs (under data_proc/):
-- agg_region_grade_subject.csv → Subject-level averages per region & grade  
-- agg_region_grade_subject_domain.csv → Domain-level averages (e.g., Reading, Writing)  
-- agg_gender.csv → Gender gaps per region & subject  
-- agg_gender_domain.csv → Gender gaps at domain-level  
-- overlap.csv → Priority cohorts where learning + equity gaps overlap  
-- overlap_domain.csv → Domain-level priority cohorts  
-Each dataset contains metrics like:
-- avg_score → average student score  
-- pct_below → % of students below proficiency (50%)  
-- gap_pp → gap in percentage points between groups  
-- p_value → statistical test result  
+We use *synthetic student assessment data*, aggregated into the following CSVs (under `data_proc/`):
 
-Hackathon Impact
-This project helps ministries & schools:
-Identify struggling regions and grades
-Pinpoint equity gaps by gender/domain
-Prioritize targeted interventions for at-risk cohorts
+- **agg_region_grade_subject.csv** → Subject-level averages per region & grade  
+- **agg_region_grade_subject_domain.csv** → Domain-level averages (e.g., Reading, Writing)  
+- **agg_gender.csv** → Gender gaps per region & subject  
+- **agg_gender_domain.csv** → Gender gaps at domain-level  
+- **overlap.csv** → Priority cohorts where learning + equity gaps overlap  
+- **overlap_domain.csv** → Domain-level priority cohorts  
 
-##To Run the dashboard:
+Each dataset contains metrics such as:
+- `avg_score` → average student score  
+- `pct_below` → % of students below proficiency (50%)  
+- `gap_pp` → gap in percentage points between groups  
+- `p_value` → statistical test result  
+
+---
+
+## 🚀 Hackathon Impact
+
+This project helps ministries & schools to:
+- Identify struggling regions and grades  
+- Pinpoint equity gaps by gender and domain  
+- Prioritize targeted interventions for at-risk cohorts  
+
+
+## To Run the dashboard:
 ### 1. With Docker (recommended)
 From inside the `frontend/` folder:
 ```bash
