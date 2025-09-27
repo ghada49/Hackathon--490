@@ -104,7 +104,7 @@ From inside the `frontend/` folder:
 ```bash
 docker build -t equity-dashboard .
 docker run --rm -p 8501:8501 equity-dashboard
-
+```
 ## 2. Without Docker
 cd frontend
 pip install -r requirements.txt
