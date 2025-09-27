@@ -43,7 +43,7 @@ Each dataset contains metrics like:
 ## 💻 How to Run Locally
 ```bash
 # Clone repo
-git clone https://github.com/<your-username>/hackathon-dashboard.git
+git clone https://github.com/<your-username>/hackathon-490.git
 cd hackathon-dashboard
 
 # Create virtualenv
