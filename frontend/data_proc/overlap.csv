@@ -1,9 +1,0 @@
-﻿region,grade,subject,focus_group,avg_score,pct_below,gap_pp,p_value,n_group,flag_overlap
-Beirut,1,Arabic,Boys,54.67,39.01,10.24,4.353900519037858e-05,631,True
-Beirut,1,English,Boys,49.77,47.43,12.03,3.22296837546291e-05,547,True
-Beirut,1,French,Boys,36.41,58.94,16.42,0.00046899423039029487,66,True
-Beirut,1,Math,Boys,35.0,69.16,8.59,0.0010021145329256699,312,True
-Beirut,3,English,Boys,47.11,56.52,8.31,0.026552980467290644,578,True
-Beirut,3,Math,Boys,41.51,59.54,7.84,0.009175836749696204,337,True
-Beirut,5,French,Boys,58.04,40.51,28.73,1.738461563712934e-05,116,True
-Bekaa,1,French,Boys,52.73,43.5,9.12,0.014664277995798643,540,True

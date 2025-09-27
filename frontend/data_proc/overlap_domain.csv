@@ -1,9 +1,0 @@
-﻿region,grade,subject,domain,focus_group,avg_score,pct_below,gap_pp,p_value,n_group,flag_overlap
-Beirut,1,Arabic,الكتابة والتعبير الكتابي,Boys,20.0,86.09,5.39,0.0007406474518180851,312,True
-Beirut,1,Arabic,فهم المقروء,Boys,26.84,79.53,6.97,0.0001366692374356371,312,True
-Beirut,1,English,Reading Comprehension,Boys,48.27,48.85,9.12,0.02760462977869395,270,True
-Beirut,1,English,Writing,Boys,27.37,77.95,10.24,5.8413714251676234e-05,270,True
-Bekaa,1,French,Lecture de mots,Boys,28.77,64.99,12.01,0.00185146698179556,275,True
-Bekaa,1,French,Lecture de mots dans une phrase,Boys,26.0,71.99,11.48,0.003337502856049086,275,True
-Bekaa,1,French,Nom de la lettre,Boys,48.41,47.04,10.31,0.011839401566896883,275,True
-Bekaa,1,French,Écriture et Production d’écrits,Boys,28.82,74.02,9.08,0.00025045520692261767,265,True
