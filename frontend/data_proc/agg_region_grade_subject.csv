@@ -1,0 +1,169 @@
+﻿region,grade,subject,avg_score,pct_below,n_students
+Beirut,1,Arabic,54.67,39.01,1297
+Beirut,1,English,49.77,47.43,1147
+Beirut,1,French,36.41,58.94,151
+Beirut,1,Math,35.0,69.16,642
+Beirut,2,Arabic,54.23,44.94,1453
+Beirut,2,English,45.99,54.21,1236
+Beirut,2,French,48.75,54.46,202
+Beirut,2,Math,42.59,58.48,725
+Beirut,3,Arabic,67.75,28.86,1400
+Beirut,3,English,47.11,56.52,1189
+Beirut,3,French,61.66,33.19,226
+Beirut,3,Math,41.51,59.54,697
+Beirut,4,Arabic,68.17,26.49,1725
+Beirut,4,English,59.45,43.78,1432
+Beirut,4,French,62.45,31.51,292
+Beirut,4,Math,32.02,80.63,852
+Beirut,5,Arabic,69.23,20.88,1542
+Beirut,5,English,63.3,36.81,1334
+Beirut,5,French,58.04,40.51,237
+Beirut,5,Math,34.46,76.74,774
+Beirut,6,Arabic,79.77,10.65,1699
+Beirut,6,English,56.28,45.64,1389
+Beirut,6,French,59.79,36.96,322
+Beirut,6,Math,37.52,73.94,852
+Bekaa,1,Arabic,62.95,31.66,4128
+Bekaa,1,English,56.63,35.94,3069
+Bekaa,1,French,52.73,43.5,1092
+Bekaa,1,Math,53.77,43.08,2045
+Bekaa,2,Arabic,65.73,31.8,4132
+Bekaa,2,English,54.59,45.85,3058
+Bekaa,2,French,63.33,34.57,1079
+Bekaa,2,Math,58.94,34.07,2043
+Bekaa,3,Arabic,73.3,21.17,3926
+Bekaa,3,English,57.83,41.75,2939
+Bekaa,3,French,62.92,34.03,1002
+Bekaa,3,Math,55.57,38.85,1938
+Bekaa,4,Arabic,75.89,16.57,4286
+Bekaa,4,English,57.99,44.4,3153
+Bekaa,4,French,62.89,35.27,1134
+Bekaa,4,Math,43.14,64.79,2119
+Bekaa,5,Arabic,79.39,12.13,3661
+Bekaa,5,English,57.1,47.4,2709
+Bekaa,5,French,69.27,26.01,942
+Bekaa,5,Math,45.12,58.01,1798
+Bekaa,6,Arabic,81.66,10.52,3261
+Bekaa,6,English,61.3,39.12,2372
+Bekaa,6,French,67.22,30.6,902
+Bekaa,6,Math,45.72,57.2,1612
+Mount Lebanon,1,Arabic,69.4,23.34,4739
+Mount Lebanon,1,English,61.76,30.25,3511
+Mount Lebanon,1,French,66.09,27.71,1209
+Mount Lebanon,1,Math,52.23,43.57,2325
+Mount Lebanon,2,Arabic,70.63,24.7,5215
+Mount Lebanon,2,English,64.27,33.33,3816
+Mount Lebanon,2,French,67.27,28.95,1392
+Mount Lebanon,2,Math,55.61,37.8,2566
+Mount Lebanon,3,Arabic,71.24,23.2,5582
+Mount Lebanon,3,English,59.85,38.47,4092
+Mount Lebanon,3,French,66.47,28.47,1528
+Mount Lebanon,3,Math,52.14,41.48,2765
+Mount Lebanon,4,Arabic,72.96,20.71,6380
+Mount Lebanon,4,English,62.54,38.15,4593
+Mount Lebanon,4,French,66.92,28.59,1833
+Mount Lebanon,4,Math,43.51,62.85,3163
+Mount Lebanon,5,Arabic,77.61,13.28,6054
+Mount Lebanon,5,English,64.97,35.46,4351
+Mount Lebanon,5,French,69.2,24.16,1701
+Mount Lebanon,5,Math,43.44,60.16,2992
+Mount Lebanon,6,Arabic,82.08,9.63,6575
+Mount Lebanon,6,English,63.29,35.25,4570
+Mount Lebanon,6,French,73.51,20.13,2012
+Mount Lebanon,6,Math,44.63,62.3,3239
+Nabatieh,1,Arabic,76.4,16.12,3628
+Nabatieh,1,English,65.98,26.11,3416
+Nabatieh,1,French,75.39,15.92,245
+Nabatieh,1,Math,57.56,36.42,1804
+Nabatieh,2,Arabic,77.07,18.01,3586
+Nabatieh,2,English,66.49,29.37,3313
+Nabatieh,2,French,65.81,28.62,297
+Nabatieh,2,Math,61.88,30.19,1779
+Nabatieh,3,Arabic,77.25,15.84,4009
+Nabatieh,3,English,66.37,29.35,3673
+Nabatieh,3,French,72.99,20.32,310
+Nabatieh,3,Math,54.6,38.93,1983
+Nabatieh,4,Arabic,77.36,16.52,4303
+Nabatieh,4,English,67.16,30.31,3778
+Nabatieh,4,French,70.5,23.86,482
+Nabatieh,4,Math,45.08,58.48,2117
+Nabatieh,5,Arabic,78.63,12.9,4172
+Nabatieh,5,English,65.42,32.78,3627
+Nabatieh,5,French,67.52,28.55,564
+Nabatieh,5,Math,49.12,50.41,2061
+Nabatieh,6,Arabic,82.18,10.44,4185
+Nabatieh,6,English,66.19,31.87,3546
+Nabatieh,6,French,70.26,23.96,647
+Nabatieh,6,Math,47.78,54.95,2062
+North,1,Arabic,65.27,27.34,16490
+North,1,English,65.73,29.59,713
+North,1,French,58.94,34.81,15827
+North,1,Math,47.56,50.45,8147
+North,2,Arabic,66.53,29.85,16790
+North,2,English,50.76,50.28,718
+North,2,French,60.55,35.67,16104
+North,2,Math,50.28,45.48,8314
+North,3,Arabic,69.1,25.68,17719
+North,3,English,54.25,42.41,705
+North,3,French,62.17,32.93,17003
+North,3,Math,47.88,50.03,8805
+North,4,Arabic,70.61,23.23,20480
+North,4,English,59.67,40.45,717
+North,4,French,58.91,39.01,19807
+North,4,Math,39.57,68.38,10175
+North,5,Arabic,75.1,16.44,17266
+North,5,English,62.74,38.0,571
+North,5,French,61.44,35.37,16699
+North,5,Math,39.66,69.29,8564
+North,6,Arabic,79.32,11.67,16052
+North,6,English,65.84,34.39,631
+North,6,French,62.77,35.75,15431
+North,6,Math,41.18,69.27,7943
+South,1,Arabic,72.31,19.49,5053
+South,1,English,65.89,26.44,4902
+South,1,French,69.34,19.44,144
+South,1,Math,54.32,40.46,2496
+South,2,Arabic,72.45,22.33,5212
+South,2,English,61.82,36.34,5041
+South,2,French,68.3,27.43,175
+South,2,Math,56.25,36.72,2571
+South,3,Arabic,72.83,21.0,5706
+South,3,English,62.42,36.67,5419
+South,3,French,72.09,17.69,277
+South,3,Math,54.32,39.25,2805
+South,4,Arabic,74.68,18.75,6452
+South,4,English,58.64,42.66,6095
+South,4,French,68.11,25.5,353
+South,4,Math,42.44,64.59,3188
+South,5,Arabic,78.54,12.24,5835
+South,5,English,61.59,40.34,5431
+South,5,French,67.38,26.63,413
+South,5,Math,43.53,60.36,2901
+South,6,Arabic,82.52,8.08,5756
+South,6,English,64.21,36.32,5330
+South,6,French,71.63,22.66,428
+South,6,Math,42.85,65.15,2858
+بعلبك والهرمل,1,Arabic,71.64,21.36,4452
+بعلبك والهرمل,1,English,49.83,44.67,1511
+بعلبك والهرمل,1,French,65.16,29.81,2932
+بعلبك والهرمل,1,Math,51.03,47.23,2181
+بعلبك والهرمل,2,Arabic,69.2,26.81,4326
+بعلبك والهرمل,2,English,50.71,47.48,1569
+بعلبك والهرمل,2,French,67.74,26.61,2751
+بعلبك والهرمل,2,Math,53.19,41.46,2137
+بعلبك والهرمل,3,Arabic,74.0,20.14,4494
+بعلبك والهرمل,3,English,60.44,35.98,1601
+بعلبك والهرمل,3,French,66.8,26.77,2906
+بعلبك والهرمل,3,Math,52.0,41.98,2227
+بعلبك والهرمل,4,Arabic,74.33,20.1,4830
+بعلبك والهرمل,4,English,54.74,44.61,1650
+بعلبك والهرمل,4,French,61.84,34.99,3178
+بعلبك والهرمل,4,Math,41.43,62.01,2382
+بعلبك والهرمل,5,Arabic,74.31,17.81,3903
+بعلبك والهرمل,5,English,59.11,41.72,1287
+بعلبك والهرمل,5,French,67.82,25.65,2612
+بعلبك والهرمل,5,Math,44.18,52.97,1935
+بعلبك والهرمل,6,Arabic,78.11,13.58,3999
+بعلبك والهرمل,6,English,56.34,41.56,1350
+بعلبك والهرمل,6,French,66.71,30.56,2680
+بعلبك والهرمل,6,Math,42.46,63.27,2001
