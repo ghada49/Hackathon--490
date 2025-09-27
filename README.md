@@ -70,17 +70,7 @@ The project has four main parts:
 
 ---
 
-## 📂 Repository Structure
-├── Data Processing/ # Scripts for cleaning & aggregating raw data
-├── Train Risk Model/ # Risk prediction models
-├── clusters_feature_dashboard/ # Clustering and feature exploration
-├── frontend/ # Streamlit dashboard (main entry point)
-│ ├── app.py
-│ ├── pages/
-│ ├── utils/
-│ ├── data_proc.zip
-│ └── requirements.txt
-└── README.md # This file
+
 
 📂 Dataset
 We use *synthetic student assessment data*, aggregated into the following CSVs (under data_proc/):
