@@ -55,3 +55,10 @@ pip install -r requirements.txt
 
 # Run the app
 streamlit run app.py
+```
+
+Hackathon Impact
+This project helps ministries & schools:
+Identify struggling regions and grades
+Pinpoint equity gaps by gender/domain
+Prioritize targeted interventions for at-risk cohorts
