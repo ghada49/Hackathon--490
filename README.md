@@ -12,14 +12,21 @@ Our mission was to transform raw **National Student Assessment data (Grades 1–
 ---
 
 ## 🎯 Problem Statement
-Lebanon’s National Student Assessment dataset contains thousands of records across grades, subjects (Arabic, English, French, Math), and regions.  
-However, raw Excel sheets are fragmented and difficult to analyze.  
-Our project aims to answer key questions:
+Education policymakers and teachers often lack clear, visual insights into:
+- Where students are underperforming
+- Which groups (e.g., boys vs. girls) face inequities
 
+This dashboard provides **actionable visual analytics** to help target interventions and allocate resources fairly.
+
+Lebanon’s **National Student Assessment dataset** contains thousands of records across grades, subjects (Arabic, English, French, Math), and regions.  
+However, raw Excel sheets are fragmented and difficult to analyze.
+
+Our project aims to answer key questions:
 - Which regions and subjects show the highest learning gaps?
 - Where do equity concerns (e.g., gender differences) appear?
 - Which students are most at risk of falling below proficiency?
 - How can policymakers triage and prioritize interventions?
+
 
 ---
 ## DataSet Used:
