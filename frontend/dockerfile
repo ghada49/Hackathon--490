@@ -1,0 +1,40 @@
+# frontend/Dockerfile
+FROM python:3.11-slim
+
+# --- System deps ---
+RUN apt-get update && apt-get install -y --no-install-recommends unzip \
+  && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+# 1) deps first (cache-friendly)
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# 2) app code
+COPY app.py ./app.py
+COPY pages ./pages
+COPY utils ./utils
+COPY data_proc.zip ./data_proc.zip
+
+# 3) Robust unzip: works whether zip has data_proc/* or files at root
+RUN mkdir -p /app/data_proc /app/data_unpack \
+ && unzip -o /app/data_proc.zip -d /app/data_unpack >/dev/null \
+ && if [ -d /app/data_unpack/data_proc ]; then \
+        SRC=/app/data_unpack/data_proc; \
+    else \
+        SRC=/app/data_unpack; \
+    fi \
+ # move everything from $SRC (handles many files) into /app/data_proc
+ && find "$SRC" -mindepth 1 -maxdepth 1 -exec mv -t /app/data_proc {} + \
+ && rm -rf /app/data_unpack /app/data_proc.zip
+
+# Streamlit settings for containers
+ENV STREAMLIT_SERVER_HEADLESS=true \
+    STREAMLIT_SERVER_ADDRESS=0.0.0.0 \
+    STREAMLIT_SERVER_PORT=8501 \
+    STREAMLIT_BROWSER_GATHER_USAGE_STATS=false \
+    PYTHONUNBUFFERED=1
+
+EXPOSE 8501
+CMD ["streamlit", "run", "app.py"]
