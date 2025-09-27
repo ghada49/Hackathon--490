@@ -17,4 +17,4 @@ if "agg_df" not in st.session_state:
     st.session_state["agg_df"] = load_region_subject()
 
 
-st.write("Navigate pages: Overview, Learning Gaps, Equity, Overlap.")
+st.write("Navigate pages: Overview, Learning Gaps, Equity, Overlap, Cluster.")
