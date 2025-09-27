@@ -106,10 +106,11 @@ docker build -t equity-dashboard .
 docker run --rm -p 8501:8501 equity-dashboard
 ```
 ## 2. Without Docker
+```bash
 cd frontend
 pip install -r requirements.txt
 streamlit run app.py
-
+```
 📊 Outputs
 
 Aggregated Data: data_proc/agg_region_grade_subject.csv
