@@ -1,0 +1,808 @@
+
+
+import os, re
+import numpy as np
+import pandas as pd
+from pathlib import Path
+from scipy import stats
+
+import re
+import unicodedata
+
+AR_DIACRITICS = "".join([
+    "\u0610","\u0611","\u0612","\u0613","\u0614",
+    "\u0615","\u0616","\u0617","\u0618","\u0619","\u061A",
+    "\u064B","\u064C","\u064D","\u064E","\u064F","\u0650","\u0651","\u0652","\u0653","\u0654","\u0655",
+    "\u0670", "\u0640"  # tatweel
+])
+
+def _strip_diacritics(s: str) -> str:
+    if not isinstance(s, str): return ""
+    # remove Arabic diacritics + tatweel
+    s = re.sub(f"[{AR_DIACRITICS}]", "", s)
+    # normalize unicode form and collapse whitespace
+    s = unicodedata.normalize("NFKC", s)
+    s = re.sub(r"\s+", " ", s).strip()
+    return s
+
+def _norm(s: str) -> str:
+    # apply for both Arabic/Latin text: lowercase + diacritics strip + trim
+    s = _strip_diacritics(str(s))
+    return s.lower().strip()
+
+# -----------------------------
+# 1) DOMAIN_CONFIG (Grade 1 only; extend later if you have time)
+# -----------------------------
+DOMAIN_CONFIG = {
+    # ===================== Grade 1 =====================
+    # -------- English --------
+    ("Grade_1.xlsx", "Eng - Oral"): {
+        "subject": "English",
+        "modality": "Oral",
+        "domains_counts": {
+            "Letter Recognition": {"cols": ["Question 1: Letter Recognition"]},
+            "Sound Recognition":  {"cols": ["Question 2: Sound Recognition"]},
+            "Word Decoding":      {"cols": ["Question 3: Word Decoding"]},
+            "Reading":            {"cols": ["Reading"]},
+        },
+    },
+    ("Grade_1.xlsx", "En - Written"): {
+        "subject": "English",
+        "modality": "Written",
+        "domains": {
+            "Reading Comprehension": [
+                "Section 1: Reading Comprehension",
+                "Unnamed: 8","Unnamed: 9","Unnamed: 10","Unnamed: 11","Unnamed: 12","Unnamed: 13",
+            ],
+            "Writing": [
+                "Section 2: Writing",
+                "Unnamed: 15","Unnamed: 16","Unnamed: 17","Unnamed: 18",
+            ],
+        },
+    },
+
+    # -------- French --------
+    ("Grade_1.xlsx", "Fr - Oral"): {
+        "subject": "French",
+        "modality": "Oral",
+        "domains_counts": {
+            "Nom de la lettre":                {"cols": ["Activité 1 : Nom de la lettre"]},
+            "Son du graphème":                 {"cols": ["Activité 2 : Son du graphème"]},
+            "Lecture de mots":                 {"cols": ["Activité 3 : Lecture de mots"]},
+            "Lecture de mots dans une phrase": {"cols": ["Activité 4 : Lecture de mots dans une phrase"]},
+        },
+    },
+    ("Grade_1.xlsx", "Fr - Written"): {
+        "subject": "French",
+        "modality": "Written",
+        "domains": {
+            "Compréhension écrite": [
+                "Section 1 - Compréhension écrite",
+                "Unnamed: 8","Unnamed: 9","Unnamed: 10","Unnamed: 11","Unnamed: 12","Unnamed: 13",
+            ],
+            "Écriture et Production d’écrits": [
+                "Section 2 - Écriture et Production d’écrits",
+                "Unnamed: 15","Unnamed: 16","Unnamed: 17","Unnamed: 18",
+            ],
+        },
+    },
+
+    # -------- Arabic --------
+   
+    ("Grade_1.xlsx", "Ar - Oral"): {
+    "subject": "Arabic",
+    "modality": "Oral",
+    "domains_counts": {
+        "معرفة اسم الحرف": {"cols": ["النشاط الأول - معرفةّ اسمّ الحرف"]},
+        "معرفة صوت الحرف": {"cols": ["النشاط الثاني - معرفةّ صوت  الحرف"]},
+        "قراءة كلمات":      {"cols": ["النشاط الثالث - قراءةّ كلمات"]},
+        "قراءة جملة":       {"cols": ["النشاط الرابع - قراءةّ جملة"]},
+    },
+},
+
+    ("Grade_1.xlsx", "Ar - Written"): {
+        "subject": "Arabic",
+        "modality": "Written",
+        "domains_counts": {
+            "فهم المقروء": {
+                "cols": ["الْقِسْمُ اّلْأَوَّلُّ","Unnamed: 8","Unnamed: 9","Unnamed: 10","Unnamed: 11","Unnamed: 12","Unnamed: 13"],
+            },
+            "الكتابة والتعبير الكتابي": {
+                "cols": ["الّْقِسْمُّ اّلثاني","Unnamed: 15","Unnamed: 16","Unnamed: 17","Unnamed: 18"],
+            },
+        },
+    },
+
+    # ===================== Grade 2 =====================
+    # -------- English --------
+    ("Grade_2.xlsx", "En - oral"): {  # note: lower-case 'oral' in your file
+        "subject": "English",
+        "modality": "Oral",
+        "domains_counts": {
+            "Letter Recognition": {"cols": ["Question 1: Letter Recognition"]},
+            "Sound Recognition":  {"cols": ["Question 2: Sound Recognition"]},
+            "Word Decoding":      {"cols": ["Question 3: Word Decoding","Word Decoding"]},
+            "Text Reading":       {"cols": ["Text Reading"]},
+        },
+    },
+    ("Grade_2.xlsx", "En - written"): {
+        "subject": "English",
+        "modality": "Written",
+        "domains": {
+            "Reading Comprehension": [
+                "Section 1: Reading Comprehension",
+                "Unnamed: 8","Unnamed: 9","Unnamed: 10","Unnamed: 11","Unnamed: 12","Unnamed: 13",
+            ],
+            "Writing": [
+                "Section 2: Writing",
+                "Unnamed: 15","Unnamed: 16","Unnamed: 17","Unnamed: 18",
+            ],
+        },
+    },
+
+    # -------- French --------
+    ("Grade_2.xlsx", "Fr - oral"): {
+        "subject": "French",
+        "modality": "Oral",
+        "domains_counts": {
+            "Nom de la lettre": {"cols": ["Activité 1 : Nom de la lettre"]},
+            "Son du graphème":  {"cols": ["Activité 2 : Son du graphème"]},
+            "Lecture de mots":  {"cols": ["Activité 3 : Lecture de mots","Activité 4 : Lecture de mots"]},
+            "Lecture de texte": {"cols": ["Activité 5 : Lecture de texte"]},
+        },
+    },
+    ("Grade_2.xlsx", "Fr - written"): {
+        "subject": "French",
+        "modality": "Written",
+        "domains": {
+            "Compréhension écrite": [
+                "Section 1 - Compréhension écrite",
+                "Unnamed: 8","Unnamed: 9","Unnamed: 10","Unnamed: 11","Unnamed: 12","Unnamed: 13",
+            ],
+            "Écriture et Production d’écrits": [
+                "Section 2 - Écriture et Production d’écrits",
+                "Unnamed: 15","Unnamed: 16","Unnamed: 17","Unnamed: 18",
+            ],
+        },
+    },
+
+    # -------- Arabic --------
+    ("Grade_2.xlsx", "Ar - oral"): {
+        "subject": "Arabic",
+        "modality": "Oral",
+        "domains_counts": {
+            "معرفة اسم الحرف": {
+                "cols": [
+                    "النّشاط 1 - معرفةّ اسمّ الحر  رف",
+                    "النشاط 1 - معرفة اسم الحرف",
+                ]
+            },
+            "معرفة صوت الحرف": {
+                "cols": [
+                    "النّشاط 2 - معرفةّصوت الحرف",
+                    "النشاط 2 - معرفة صوت الحرف",
+                ]
+            },
+            "قراءة كلمات": {
+                "cols": [
+                    "النّشاط 3 - قراءةّ كلمات",
+                    "النشاط 3 - قراءة كلمات",
+                    "النّشاط 4 - قراءةّ كلمات",
+                    "النشاط 4 - قراءة كلمات",
+                    "   'النّشاط 4 - قراءةّ كلمات",  # seen in your dump; keep literal just in case
+                ]
+            },
+            "قراءة نص": {
+                "cols": [
+                    "النّشاط 5 - قراءةّ نصّ",
+                    "النشاط 5 - قراءة نص",
+                ]
+            },
+        },
+    },
+    ("Grade_2.xlsx", "Ar - written"): {
+        "subject": "Arabic",
+        "modality": "Written",
+        "domains_counts": {
+            "فهم المقروء": {
+                "cols": ["الْقِسْمُ اّلْأَوَّلُّ","Unnamed: 8","Unnamed: 9","Unnamed: 10","Unnamed: 11","Unnamed: 12","Unnamed: 13"],
+            },
+            "الكتابة والتعبير الكتابي": {
+                "cols": ["الّْقِسْمُّ اّلثاني","Unnamed: 15","Unnamed: 16","Unnamed: 17","Unnamed: 18"],
+            },
+        },
+    },
+
+    # ===================== Grade 3 =====================
+    # -------- English --------
+    ("Grade_3.xlsx", "En - oral"): {
+        "subject": "English",
+        "modality": "Oral",
+        "domains_counts": {
+            "Letter Recognition": {"cols": ["Question 1: Letter Recognition"]},
+            "Sound Recognition":  {"cols": ["Question 2: Sound Recognition"]},
+            "Word Decoding":      {"cols": ["Question 3: Word Decoding","Word Decoding"]},
+            "Text Reading":       {"cols": ["Text Reading"]},
+        },
+    },
+    ("Grade_3.xlsx", "En - written"): {
+        "subject": "English",
+        "modality": "Written",
+        "domains": {
+            "Reading Comprehension": [
+                "Section 1: Reading Comprehension",
+                "Unnamed: 8","Unnamed: 9","Unnamed: 10","Unnamed: 11","Unnamed: 12","Unnamed: 13",
+            ],
+            "Writing": [
+                "Section 2: Writing",
+                "Unnamed: 15","Unnamed: 16","Unnamed: 17","Unnamed: 18",
+            ],
+        },
+    },
+
+    # -------- French --------
+    ("Grade_3.xlsx", "Fr - oral"): {
+        "subject": "French",
+        "modality": "Oral",
+        "domains_counts": {
+            "Nom de la lettre": {"cols": ["Activité 1 : Nom de la lettre"]},
+            "Son du graphème":  {"cols": ["Activité 2 : Son du graphème"]},
+            "Lecture de mots":  {"cols": ["Activité 3 : Lecture de mots","Activité 4 : Lecture de mots"]},
+            "Lecture de texte": {"cols": ["Activité 5 : Lecture de texte"]},
+        },
+    },
+    ("Grade_3.xlsx", "Fr -written"): {  # note: your sheet is 'Fr -written' (no space)
+        "subject": "French",
+        "modality": "Written",
+        "domains": {
+            "Compréhension écrite": [
+                "Section 1 - Compréhension écrite",
+                "Unnamed: 8","Unnamed: 9","Unnamed: 10","Unnamed: 11","Unnamed: 12","Unnamed: 13",
+            ],
+            "Écriture et Production d’écrits": [
+                "Section 2 - Écriture et Production d’écrits",
+                "Unnamed: 15","Unnamed: 16","Unnamed: 17","Unnamed: 18",
+            ],
+        },
+    },
+
+    # -------- Arabic --------
+    ("Grade_3.xlsx", "Ar - oral"): {
+        "subject": "Arabic",
+        "modality": "Oral",
+        "domains_counts": {
+            "معرفة اسم الحرف": {"cols": ["النّشاط 1 - معرفةّ اسمّ الحر  رف","النشاط 1 - معرفة اسم الحرف"]},
+            "معرفة صوت الحرف": {"cols": ["النّشاط 2 - معرفةّ صوت  الحرف","النشاط 2 - معرفة صوت الحرف"]},
+            "قراءة كلمات":     {"cols": ["النّشاط 3 - قراءةّ كلمات","النشاط 3 - قراءة كلمات","النّشاط 4 - قراءةّ كلمات","النشاط 4 - قراءة كلمات"]},
+            "قراءة نص":        {"cols": ["النّشاط 5 - قراءةّ نصّ","النشاط 5 - قراءة نص"]},
+        },
+    },
+    ("Grade_3.xlsx", "Ar - written"): {
+        "subject": "Arabic",
+        "modality": "Written",
+        "domains_counts": {
+            "فهم المقروء": {
+                "cols": ["الْقِسْمُ اّلْأَوَّلُّ","Unnamed: 8","Unnamed: 9","Unnamed: 10","Unnamed: 11","Unnamed: 12","Unnamed: 13"],
+            },
+            "الكتابة والتعبير الكتابي": {
+                "cols": ["الّْقِسْمُّ اّلثاني","Unnamed: 15","Unnamed: 16","Unnamed: 17","Unnamed: 18"],
+            },
+        },
+    },
+
+    # ===================== Grade 4 =====================
+    # -------- English --------
+    ("Grade_4.xlsx", "En - oral"): {
+        "subject": "English",
+        "modality": "Oral",
+        "domains_counts": {
+            "Letter Recognition": {"cols": ["Question 1: Letter Recognition"]},
+            "Sound Recognition":  {"cols": ["Question 2: Sound Recognition"]},
+            "Word Decoding":      {"cols": ["Question 3: Word Decoding","Word Decoding"]},
+            "Text Reading":       {"cols": ["Text Reading"]},
+        },
+    },
+    ("Grade_4.xlsx", "En - written"): {
+        "subject": "English",
+        "modality": "Written",
+        "domains": {
+            "Reading Comprehension": [
+                "Section 1: Reading Comprehension",
+                "Unnamed: 8","Unnamed: 9","Unnamed: 10","Unnamed: 11","Unnamed: 12","Unnamed: 13",
+            ],
+            "Writing": [
+                "Section 2: Writing",
+                "Unnamed: 15","Unnamed: 16","Unnamed: 17","Unnamed: 18",
+            ],
+        },
+    },
+
+    # -------- French --------
+    ("Grade_4.xlsx", "Fr - oral"): {
+        "subject": "French",
+        "modality": "Oral",
+        "domains_counts": {
+            "Nom de la lettre": {"cols": ["Activité 1 : Nom de la lettre"]},
+            "Son du graphème":  {"cols": ["Activité 2 : Son du graphème"]},
+            "Lecture de mots":  {"cols": ["Activité 3 : Lecture de mots","Activité 4 : Lecture de mots"]},
+            "Lecture de texte": {"cols": ["Activité 5 : Lecture de texte"]},
+        },
+    },
+    ("Grade_4.xlsx", "Fr - written"): {
+        "subject": "French",
+        "modality": "Written",
+        "domains": {
+            "Compréhension écrite": [
+                "Section 1 - Compréhension écrite",
+                "Unnamed: 8","Unnamed: 9","Unnamed: 10","Unnamed: 11","Unnamed: 12","Unnamed: 13",
+            ],
+            "Écriture et Production d’écrits": [
+                "Section 2 - Écriture et Production d’écrits",
+                "Unnamed: 15","Unnamed: 16","Unnamed: 17","Unnamed: 18",
+            ],
+        },
+    },
+
+    # -------- Arabic --------
+    ("Grade_4.xlsx", "Ar - Oral"): {
+        "subject": "Arabic",
+        "modality": "Oral",
+        "domains_counts": {
+            "معرفة اسم الحرف": {"cols": ["النّشاط 1 -- معرفةّ اسمّ الحرف","النشاط 1 - معرفة اسم الحرف"]},
+            "معرفة صوت الحرف": {"cols": ["النّشاط 2 - معرفةّ صوت  الحرف","النشاط 2 - معرفة صوت الحرف"]},
+            "قراءة كلمات":     {"cols": ["النّشاط 3    3 - قراءةّ كلمات","النّشاط 4 - قراءةّ كلمات","النشاط 3 - قراءة كلمات","النشاط 4 - قراءة كلمات"]},
+            "قراءة نص":        {"cols": ["النّشاط 5 - قراءة   ةّ نصّ","النشاط 5 - قراءة نص"]},
+        },
+    },
+    ("Grade_4.xlsx", "Ar - written"): {
+        "subject": "Arabic",
+        "modality": "Written",
+        "domains_counts": {
+            "فهم المقروء": {
+                "cols": ["الْقِسْمُ اّلْأَوَّلُّ","Unnamed: 8","Unnamed: 9","Unnamed: 10","Unnamed: 11","Unnamed: 12","Unnamed: 13"],
+            },
+            "الكتابة والتعبير الكتابي": {
+                "cols": ["الّْقِسْمُّ اّلثاني","Unnamed: 15","Unnamed: 16","Unnamed: 17","Unnamed: 18"],
+            },
+        },
+    },
+
+    # ===================== Grade 5 =====================
+    # -------- English --------
+    ("Grade_5.xlsx", "En - oral"): {
+        "subject": "English",
+        "modality": "Oral",
+        "domains_counts": {
+            "Letter Recognition": {"cols": ["Question 1: Letter Recognition"]},
+            "Sound Recognition":  {"cols": ["Question 2: Sound Recognition"]},
+            "Word Decoding":      {"cols": ["Question 3: Word Decoding","Word Decoding"]},
+            "Text Reading":       {"cols": ["Text Reading"]},
+        },
+    },
+    ("Grade_5.xlsx", "En - written"): {
+        "subject": "English",
+        "modality": "Written",
+        "domains": {
+            "Reading Comprehension": [
+                "Section 1: Reading Comprehension",
+                "Unnamed: 8","Unnamed: 9","Unnamed: 10","Unnamed: 11","Unnamed: 12","Unnamed: 13",
+            ],
+            "Writing": [
+                "Section 2: Writing",
+                "Unnamed: 15","Unnamed: 16","Unnamed: 17","Unnamed: 18",
+            ],
+        },
+    },
+
+    # -------- French --------
+    ("Grade_5.xlsx", "Fr - oral"): {
+        "subject": "French",
+        "modality": "Oral",
+        "domains_counts": {
+            "Nom de la lettre": {"cols": ["Activité 1 : Nom de la lettre"]},
+            "Son du graphème":  {"cols": ["Activité 2 : Son du graphème"]},
+            "Lecture de mots":  {"cols": ["Activité 3 : Lecture de mots","Activité 4 : Lecture de mots"]},
+            "Lecture de texte": {"cols": ["Activité 5 : Lecture de texte"]},
+        },
+    },
+    ("Grade_5.xlsx", "Fr - written"): {
+        "subject": "French",
+        "modality": "Written",
+        "domains": {
+            "Compréhension écrite": [
+                "Section 1 - Compréhension écrite",
+                "Unnamed: 8","Unnamed: 9","Unnamed: 10","Unnamed: 11","Unnamed: 12","Unnamed: 13",
+            ],
+            "Écriture et Production d’écrits": [
+                "Section 2 - Écriture et Production d’écrits",
+                "Unnamed: 15","Unnamed: 16","Unnamed: 17","Unnamed: 18",
+            ],
+        },
+    },
+
+    # -------- Arabic --------
+    ("Grade_5.xlsx", "Ar - Oral"): {
+        "subject": "Arabic",
+        "modality": "Oral",
+        "domains_counts": {
+            "معرفة اسم الحرف": {"cols": ["النّشاط 1 - معرفةّ اسمّ الحر  رف","النشاط 1 - معرفة اسم الحرف"]},
+            "معرفة صوت الحرف": {"cols": ["النّشاط 2 - معرفةّ صوت  الحرف","النشاط 2 - معرفة صوت الحرف"]},
+            "قراءة كلمات":     {"cols": ["النّشاط 3 - قراءةّ كلمات","النشاط 3 - قراءة كلمات","النّشاط 4 - قراءةّ كلمات","النشاط 4 - قراءة كلمات"]},
+            "قراءة نص":        {"cols": ["النّشاط 5 - قراءةّ نصّ","النشاط 5 - قراءة نص"]},
+        },
+    },
+    ("Grade_5.xlsx", "Ar - written"): {
+        "subject": "Arabic",
+        "modality": "Written",
+        "domains_counts": {
+            "فهم المقروء": {
+                "cols": ["الْقِسْمُ اّلْأَوَّلُّ","Unnamed: 8","Unnamed: 9","Unnamed: 10","Unnamed: 11","Unnamed: 12","Unnamed: 13"],
+            },
+            "الكتابة والتعبير الكتابي": {
+                "cols": ["الّْقِسْمُّ اّلثاني","Unnamed: 15","Unnamed: 16","Unnamed: 17","Unnamed: 18"],
+            },
+        },
+    },
+
+    # ===================== Grade 6 =====================
+    # -------- English --------
+    ("Grade_6.xlsx", "En - oral"): {
+        "subject": "English",
+        "modality": "Oral",
+        "domains_counts": {
+            "Letter Recognition": {"cols": ["Question 1: Letter Recognition"]},
+            "Sound Recognition":  {"cols": ["Question 2: Sound Recognition"]},
+            "Word Decoding":      {"cols": ["Question 3: Word Decoding","Word Decoding"]},
+            "Text Reading":       {"cols": ["Text Reading"]},
+        },
+    },
+    ("Grade_6.xlsx", "En - written"): {
+        "subject": "English",
+        "modality": "Written",
+        "domains": {
+            "Reading Comprehension": [
+                "Section 1: Reading Comprehension",
+                "Unnamed: 8","Unnamed: 9","Unnamed: 10","Unnamed: 11","Unnamed: 12","Unnamed: 13",
+            ],
+            "Writing": [
+                "Section 2: Writing"," Section 2: Writing",  # note: your dump shows a leading space variant once
+                "Unnamed: 15","Unnamed: 16","Unnamed: 17","Unnamed: 18",
+            ],
+        },
+    },
+
+    # -------- French --------
+    ("Grade_6.xlsx", "Fr - oral"): {
+        "subject": "French",
+        "modality": "Oral",
+        "domains_counts": {
+            "Nom de la lettre": {"cols": ["Activité 1 : Nom de la lettre"]},
+            "Son du graphème":  {"cols": ["Activité 2 : Son du graphème"]},
+            "Lecture de mots":  {"cols": ["Activité 3 : Lecture de mots","Activité 4 : Lecture de mots"]},
+            "Lecture de texte": {"cols": ["Activité 5 : Lecture de texte"]},
+        },
+    },
+    ("Grade_6.xlsx", "Fr - written"): {
+        "subject": "French",
+        "modality": "Written",
+        "domains": {
+            "Compréhension écrite": [
+                "Section 1 - Compréhension écrite",
+                "Unnamed: 8","Unnamed: 9","Unnamed: 10","Unnamed: 11","Unnamed: 12","Unnamed: 13",
+            ],
+            "Écriture et Production d’écrits": [
+                "Section 2 - Écriture et Production d’écrits"," Section 2 - Écriture et Production d’écrits",
+                "Unnamed: 15","Unnamed: 16","Unnamed: 17","Unnamed: 18",
+            ],
+        },
+    },
+
+    # -------- Arabic --------
+    ("Grade_6.xlsx", "Ar - oral"): {
+        "subject": "Arabic",
+        "modality": "Oral",
+        "domains_counts": {
+            "معرفة اسم الحرف": {"cols": ["النّشاط 1 -  معرفةّ اسمّ الحرف","النشاط 1 - معرفة اسم الحرف"]},
+            "معرفة صوت الحرف": {"cols": ["النّشاط 2 - معرفةّ صوت  الحرف","النشاط 2 - معرفة صوت الحرف"]},
+            "قراءة كلمات":     {"cols": ["النّشاط 3      - قراءةّ كلمات","النّشاط 4 - قراءةّ كلمات","النشاط 3 - قراءة كلمات","النشاط 4 - قراءة كلمات"]},
+            "قراءة نص":        {"cols": ["النّشاط 5 - قراءةّ     نصّ","النشاط 5 - قراءة نص"]},
+        },
+    },
+    ("Grade_6.xlsx", "Ar - written"): {
+        "subject": "Arabic",
+        "modality": "Written",
+        "domains_counts": {
+            "فهم المقروء": {
+                "cols": ["الْقِسْمُ اّلْأَوَّلُّ","Unnamed: 8","Unnamed: 9","Unnamed: 10","Unnamed: 11","Unnamed: 12","Unnamed: 13"],
+            },
+            "الكتابة والتعبير الكتابي": {
+                "cols": ["الّْقِسْمُّ اّلثاني","Unnamed: 15","Unnamed: 16","Unnamed: 17","Unnamed: 18"],
+            },
+        },
+    },
+}
+
+# -----------------------------
+
+GRADE_FILES = [f"Grade_{i}.xlsx" for i in range(1,7) if os.path.exists(f"Grade_{i}.xlsx")]
+DEMOS = ["ScRN","StRN","Class Name","Course Name","Exam Type","Gender","Governate"]
+
+def normalize_region(g):
+    if pd.isna(g): return "Unknown"
+    m = str(g).strip()
+    mapping = {
+        "بيروت":"Beirut","جبل لبنان":"Mount Lebanon","البقاع":"Bekaa","بعلبك الهرمل":"Baalbek-Hermel",
+        "النبطية":"Nabatieh","الجنوب":"South","الشمال":"North","عكار":"Akkar",
+        "كسروان-جبيل":"Keserwan-Jbeil","زحلة":"Zahleh",
+    }
+    return mapping.get(m, m)
+
+def subject_modality_from_sheet(sheet_name):
+    s = sheet_name.strip().lower()
+    if s.startswith("en"): subj = "English"
+    elif s.startswith("fr"): subj = "French"
+    elif s.startswith("ar"): subj = "Arabic"
+    elif "math" in s: subj = "Math"
+    else: subj = "Unknown"
+    modality = "Written" if "written" in s else ("Oral" if "oral" in s else "Unknown")
+    return subj, modality
+
+def find_first_data_row(df):
+    if "ScRN" in df.columns and "StRN" in df.columns:
+        idx = df.index[df["ScRN"].notna() & df["StRN"].notna()]
+        if len(idx): return int(idx[0])
+        idx2 = df.index[df["ScRN"].notna()]
+        if len(idx2): return int(idx2[0])
+    return 0
+
+# ---------- Overall (subject-level) ----------
+def parse_sheet_overall(df, sheet_name, grade_num):
+    subj, mod = subject_modality_from_sheet(sheet_name)
+    for c in DEMOS:
+        if c not in df.columns: df[c] = np.nan
+    start = find_first_data_row(df)
+    data = df.iloc[start:].reset_index(drop=True).copy()
+    data = data.rename(columns={
+        "ScRN":"school_id","StRN":"student_id","Class Name":"class_name",
+        "Course Name":"course_name","Exam Type":"exam_type","Gender":"gender","Governate":"region_raw",
+    })
+    demo_renamed = ["school_id","student_id","class_name","course_name","exam_type","gender","region_raw"]
+    score_candidates = [c for c in data.columns if c not in demo_renamed]
+    score_df = pd.DataFrame(index=data.index)
+    for c in score_candidates:
+        s2 = pd.to_numeric(data[c].replace("-", 0), errors="coerce")
+        if s2.notna().sum() >= max(5, int(0.1*len(s2))):
+            score_df[c] = s2.fillna(0).clip(0,1).astype(int)
+    if score_df.shape[1] == 0:
+        return pd.DataFrame(columns=["student_id","school_id","region","grade","subject","modality","gender","pct","is_below"])
+    total = score_df.sum(axis=1)
+    max_total = score_df.shape[1]
+    pct = 100 * total / max_total
+    out = pd.DataFrame({
+        "student_id": data["student_id"],
+        "school_id": data["school_id"],
+        "region": data["region_raw"].apply(normalize_region),
+        "grade": grade_num,
+        "subject": subj,
+        "modality": mod,
+        "gender": data["gender"].map({"ذكر":"Male","انثى":"Female"}).fillna(data["gender"]),
+        "pct": pct
+    })
+    out["is_below"] = (out["pct"] < 50).astype(int)
+    return out
+
+# ---------- Domain helpers ----------
+def _binify(frame_cols):
+    return frame_cols.replace("-", 0).apply(pd.to_numeric, errors="coerce").fillna(0).clip(0,1).astype(int)
+
+def compute_domains_binary(df_raw, file_name, sheet_name, grade_num, cfg):
+    if "domains" not in cfg: return pd.DataFrame()
+    start = find_first_data_row(df_raw)
+    df = df_raw.iloc[start:].reset_index(drop=True).copy()
+    df = df.rename(columns={"ScRN":"school_id","StRN":"student_id","Governate":"region","Gender":"gender"})
+    df["region"] = df["region"].fillna("Unknown").apply(normalize_region)
+    df["gender"] = df["gender"].map({"ذكر":"Male","انثى":"Female"}).fillna(df["gender"])
+    parts = []
+    for domain, cols in cfg["domains"].items():
+        # build reverse map of normalized df columns -> real column names
+        norm_map = {_norm(c): c for c in df.columns}
+        wanted = [_norm(c) for c in cols]
+        keep = [norm_map[w] for w in wanted if w in norm_map]
+
+        if not keep: continue
+        block = _binify(df[keep])
+        score = block.sum(axis=1)
+        dmax = len(keep)
+        dpct = 100.0 * score / dmax
+        parts.append(pd.DataFrame({
+            "student_id": df["student_id"], "school_id": df["school_id"],
+            "region": df["region"], "grade": grade_num,
+            "subject": cfg["subject"], "modality": cfg["modality"],
+            "domain": domain, "domain_pct": dpct,
+            "domain_is_below": (dpct < 50).astype(int), "gender": df["gender"]
+        }))
+    return pd.concat(parts, ignore_index=True) if parts else pd.DataFrame()
+
+def compute_domains_counts(df_raw, file_name, sheet_name, grade_num, cfg):
+    if "domains_counts" not in cfg: return pd.DataFrame()
+    start = find_first_data_row(df_raw)
+    df = df_raw.iloc[start:].reset_index(drop=True).copy()
+    df = df.rename(columns={"ScRN":"school_id","StRN":"student_id","Governate":"region","Gender":"gender"})
+    df["region"] = df["region"].fillna("Unknown").apply(normalize_region)
+    df["gender"] = df["gender"].map({"ذكر":"Male","انثى":"Female"}).fillna(df["gender"])
+    parts = []
+    for domain, spec in cfg["domains_counts"].items():
+        cols = [c for c in spec["cols"] if c in df.columns]
+        if not cols: continue
+        vals = df[cols].apply(pd.to_numeric, errors="coerce").fillna(0.0)
+        given = spec.get("max", [])
+        maxima = []
+        for i, c in enumerate(cols):
+            m = float(given[i]) if i < len(given) and given[i] else float(vals[c].max() or 1.0)
+            maxima.append(m)
+        score = vals.sum(axis=1)
+        dmax = float(sum(maxima)) if sum(maxima) > 0 else 1.0
+        dpct = 100.0 * score / dmax
+        parts.append(pd.DataFrame({
+            "student_id": df["student_id"], "school_id": df["school_id"],
+            "region": df["region"], "grade": grade_num,
+            "subject": cfg["subject"], "modality": cfg["modality"],
+            "domain": domain, "domain_pct": dpct,
+            "domain_is_below": (dpct < 50).astype(int), "gender": df["gender"]
+        }))
+    return pd.concat(parts, ignore_index=True) if parts else pd.DataFrame()
+
+# ---------- Build tidy frames ----------
+tidy_overall = []
+tidy_domain  = []
+
+for path in GRADE_FILES:
+    xls = pd.ExcelFile(path)
+    m = re.search(r"Grade_(\d+)\.xlsx$", path)
+    grade_num = int(m.group(1)) if m else None
+
+    for sn in xls.sheet_names:
+        df_raw = pd.read_excel(path, sheet_name=sn)
+
+        # overall (subject-level)
+        overall = parse_sheet_overall(df_raw, sn, grade_num)
+        if not overall.empty:
+            tidy_overall.append(overall)
+
+        # domain-level
+        cfg = DOMAIN_CONFIG.get((os.path.basename(path), sn))
+        if not cfg:
+            print(f"[MISS CFG] {path} / {sn}  (no DOMAIN_CONFIG key)")
+            continue
+
+        # compute + collect domains
+        dom_bin   = compute_domains_binary(df_raw, os.path.basename(path), sn, grade_num, cfg)
+        dom_count = compute_domains_counts(df_raw, os.path.basename(path), sn, grade_num, cfg)
+        for part in (dom_bin, dom_count):
+            if part is not None and not part.empty:
+                tidy_domain.append(part)
+
+        # diagnostics
+        if "domains" in cfg:
+            for d, cols in cfg["domains"].items():
+                keep = [c for c in cols if c in df_raw.columns]
+                print(f"[{os.path.basename(path)} | {sn}] domain='{d}' found_cols={len(keep)} / {len(cols)}")
+        if "domains_counts" in cfg:
+            for d, spec in cfg["domains_counts"].items():
+                cols = [c for c in spec["cols"] if c in df_raw.columns]
+                print(f"[{os.path.basename(path)} | {sn}] domain='{d}' found_cols={len(cols)} / {len(spec['cols'])}")
+# ---- after the loops ----
+tidy = pd.concat(tidy_overall, ignore_index=True) if tidy_overall else pd.DataFrame(
+    columns=["region","grade","subject","pct","is_below","student_id","gender"]
+)
+tidy_dom = pd.concat(tidy_domain, ignore_index=True) if tidy_domain else pd.DataFrame(
+    columns=["region","grade","subject","domain","domain_pct","domain_is_below","student_id","gender"]
+)
+print(f"[SUMMARY] overall rows: {len(tidy)}, domain rows: {len(tidy_dom)}")
+
+# ---------- Aggregations (overall) ----------
+agg = tidy.groupby(["region","grade","subject"], dropna=False).agg(
+    avg_score=("pct","mean"),
+    pct_below=("is_below","mean"),
+    n_students=("student_id","count"),
+).reset_index()
+agg["avg_score"] = agg["avg_score"].round(2)
+agg["pct_below"] = (100 * agg["pct_below"]).round(2)
+
+rows = []
+for (r,g,s), sub in tidy.groupby(["region","grade","subject"]):
+    gA = sub[sub["gender"] == "Male"]["pct"].dropna()
+    gB = sub[sub["gender"] == "Female"]["pct"].dropna()
+    if len(gA) >= 50 and len(gB) >= 50:
+        try:
+            _, p = stats.ttest_ind(gA, gB, equal_var=False)
+        except Exception:
+            p = np.nan
+        pct_a = 100.0 * (gA < 50).mean()  # % below proficiency - Male
+        pct_b = 100.0 * (gB < 50).mean()  # % below proficiency - Female
+        gap_pp = round(pct_a - pct_b, 2)
+
+        rows.append({
+            "region": r, "grade": g, "subject": s,
+            "subgroup_a": "Male", "subgroup_b": "Female",
+            "pct_a": round(pct_a, 2), "pct_b": round(pct_b, 2),  # <-- NEW
+            "gap_pp": gap_pp,
+            "p_value": float(p) if pd.notna(p) else np.nan,
+            "n_a": int(len(gA)), "n_b": int(len(gB)),
+        })
+
+gender_agg = pd.DataFrame(rows)
+
+
+nat = agg.groupby(["subject","grade"])["pct_below"].mean().reset_index().rename(columns={"pct_below":"nat_pct_below"})
+tmp = agg.merge(nat, on=["subject","grade"], how="left")
+tmp["high_learning_gap"] = tmp["pct_below"] > (tmp["nat_pct_below"] + 10)
+over = tmp.merge(gender_agg, on=["region","grade","subject"], how="inner")
+over["sig_gender_gap"] = (over["p_value"] < 0.05) & (over["gap_pp"].abs() >= 5)
+def focus_grp(x): return "Boys" if x>0 else ("Girls" if x<0 else "Tie")
+over["focus_group"] = over["gap_pp"].apply(focus_grp)
+over["n_group"] = over[["n_a","n_b"]].min(axis=1)
+overlap = over.loc[over["high_learning_gap"] & over["sig_gender_gap"],
+                   ["region","grade","subject","focus_group","avg_score","pct_below","gap_pp","p_value","n_group"]].copy()
+overlap["flag_overlap"] = True
+
+# ---------- Aggregations (domain) ----------
+if not tidy_dom.empty:
+    agg_dom = tidy_dom.groupby(["region","grade","subject","domain"], dropna=False).agg(
+        avg_score=("domain_pct","mean"),
+        pct_below=("domain_is_below","mean"),
+        n_students=("student_id","count"),
+    ).reset_index()
+    agg_dom["avg_score"] = agg_dom["avg_score"].round(2)
+    agg_dom["pct_below"] = (100 * agg_dom["pct_below"]).round(2)
+
+    rows = []
+    for (r,g,s,d), sub in tidy_dom.groupby(["region","grade","subject","domain"]):
+        m = sub[sub["gender"] == "Male"]["domain_pct"].dropna()
+        f = sub[sub["gender"] == "Female"]["domain_pct"].dropna()
+        if len(m) >= 50 and len(f) >= 50:
+            try:
+                _, p = stats.ttest_ind(m, f, equal_var=False)
+            except Exception:
+                p = np.nan
+            pct_a = 100.0 * (m < 50).mean()  # % below proficiency - Male
+            pct_b = 100.0 * (f < 50).mean()  # % below proficiency - Female
+            gap_pp = round(pct_a - pct_b, 2)
+
+            rows.append({
+                "region": r, "grade": g, "subject": s, "domain": d,
+                "subgroup_a": "Male", "subgroup_b": "Female",
+                "pct_a": round(pct_a, 2), "pct_b": round(pct_b, 2),  # <-- NEW
+                "gap_pp": gap_pp,
+                "p_value": float(p) if pd.notna(p) else np.nan,
+                "n_a": int(len(m)), "n_b": int(len(f)),
+            })
+
+    gender_dom = pd.DataFrame(rows)
+
+    natd = agg_dom.groupby(["subject","grade","domain"])["pct_below"].mean().reset_index().rename(columns={"pct_below":"nat_pct_below"})
+    tmpd = agg_dom.merge(natd, on=["subject","grade","domain"], how="left")
+    tmpd["high_learning_gap"] = tmpd["pct_below"] > (tmpd["nat_pct_below"] + 10)
+    overd = tmpd.merge(gender_dom, on=["region","grade","subject","domain"], how="inner")
+    overd["sig_gender_gap"] = (overd["p_value"] < 0.05) & (overd["gap_pp"].abs() >= 5)
+    overd["focus_group"] = overd["gap_pp"].apply(lambda x: "Boys" if x > 0 else ("Girls" if x < 0 else "Tie"))
+    overd["n_group"] = overd[["n_a","n_b"]].min(axis=1)
+    overlap_dom = overd.loc[
+        overd["high_learning_gap"] & overd["sig_gender_gap"],
+        ["region","grade","subject","domain","focus_group","avg_score","pct_below","gap_pp","p_value","n_group"]
+    ].copy()
+    overlap_dom["flag_overlap"] = True
+
+
+# ---------- Save (UTF-8 BOM so Excel shows Arabic/French correctly) ----------
+Path("data_proc").mkdir(exist_ok=True)
+agg.to_csv("data_proc/agg_region_grade_subject.csv", index=False, encoding="utf-8-sig")
+gender_agg.to_csv("data_proc/agg_gender.csv", index=False, encoding="utf-8-sig")
+overlap.to_csv("data_proc/overlap.csv", index=False, encoding="utf-8-sig")
+
+if 'agg_dom' in locals():
+    agg_dom.to_csv("data_proc/agg_region_grade_subject_domain.csv", index=False, encoding="utf-8-sig")
+    gender_dom.to_csv("data_proc/agg_gender_domain.csv", index=False, encoding="utf-8-sig")
+    overlap_dom.to_csv("data_proc/overlap_domain.csv", index=False, encoding="utf-8-sig")
+
+print("Done. Files written to data_proc/")
