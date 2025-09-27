@@ -96,6 +96,12 @@ Each dataset contains metrics like:
 - gap_pp → gap in percentage points between groups  
 - p_value → statistical test result  
 
+Hackathon Impact
+This project helps ministries & schools:
+Identify struggling regions and grades
+Pinpoint equity gaps by gender/domain
+Prioritize targeted interventions for at-risk cohorts
+
 ##To Run the dashboard:
 ### 1. With Docker (recommended)
 From inside the `frontend/` folder:
@@ -118,8 +124,4 @@ Equity Metrics: data_proc/agg_gender.csv, overlap.csv
 
 Model Coefficients: risk_model_coefficients.csv
 
-Hackathon Impact
-This project helps ministries & schools:
-Identify struggling regions and grades
-Pinpoint equity gaps by gender/domain
-Prioritize targeted interventions for at-risk cohorts
+
