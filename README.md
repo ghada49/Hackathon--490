@@ -79,7 +79,8 @@ This project helps ministries & schools to:
 - Prioritize targeted interventions for at-risk cohorts  
 
 
-## To Run the dashboard:
+## To Run the dashboard: 
+## Only Run Frontend Folder 
 ### 1. With Docker (recommended)
 From inside the `frontend/` folder:
 ```bash
