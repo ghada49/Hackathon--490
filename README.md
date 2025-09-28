@@ -1,8 +1,8 @@
   Project Title: Equity & Learning Gaps Dashboard
 
 👥 Team Members:
-Roaa Hajj Chehade
-Ghada Al Danab
+Roaa Hajj Chehade,
+Ghada Al Danab,
 Line Faour
 # Equity & Learning Gaps Dashboard
 
@@ -71,25 +71,6 @@ The project has four main parts:
 ---
 
 
-## 📂 Dataset
-
-We use *synthetic student assessment data*, aggregated into the following CSVs (under `data_proc/`):
-
-- **agg_region_grade_subject.csv** → Subject-level averages per region & grade  
-- **agg_region_grade_subject_domain.csv** → Domain-level averages (e.g., Reading, Writing)  
-- **agg_gender.csv** → Gender gaps per region & subject  
-- **agg_gender_domain.csv** → Gender gaps at domain-level  
-- **overlap.csv** → Priority cohorts where learning + equity gaps overlap  
-- **overlap_domain.csv** → Domain-level priority cohorts  
-
-Each dataset contains metrics such as:
-- `avg_score` → average student score  
-- `pct_below` → % of students below proficiency (50%)  
-- `gap_pp` → gap in percentage points between groups  
-- `p_value` → statistical test result  
-
----
-
 ## 🚀 Hackathon Impact
 
 This project helps ministries & schools to:
@@ -111,7 +92,10 @@ cd frontend
 pip install -r requirements.txt
 streamlit run app.py
 ```
-📊 Outputs
+
+---
+
+Outputs of data - input to frontend:
 
 Aggregated Data: data_proc/agg_region_grade_subject.csv
 
